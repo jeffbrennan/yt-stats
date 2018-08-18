@@ -1,0 +1,11 @@
+# This grabs all videos from a particular channel (or channels) and gets the following information 
+- Title
+- ID
+- Published_At
+- Channel Title
+- Video Title
+- Duration
+- View_Count
+- Like_Count
+- Dislike_Count
+- Comment_Count
