@@ -5,6 +5,7 @@ from urllib import request
 
 keyGet = open('Key.txt', 'r')
 API_KEY = keyGet.read()
+idPath = 'C:/Users/jeffb/Documents/Python/webPrograms/webScraping/yt-stats/IDs/'
 
 channel_dict = {'WSHH':'UU-yXuc1__OzjwpsJPlxYUCQ', 'Lyrical-Lemonade':'UUtylTUUVIGY_i5afsQYeBZA', 'Lonewolf':'UUtLgQnGkWe74dukALaUNt1Q'}
 channel = 'Lonewolf'
@@ -54,7 +55,7 @@ for _ in range(pageTotal):
         print('Reached end of list')
 
 
-with open(channel+'-videoIDs.csv', 'w', newline='') as f:
+with open(idPath+channel+'-videoIDs.csv', 'w', newline='') as f:
     writer = csv.writer(f)
     for i in videos:
         writer.writerow([i])

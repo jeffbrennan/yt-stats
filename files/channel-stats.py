@@ -3,8 +3,8 @@ keyGet = open('Key.txt', 'r')
 API_KEY = keyGet.read()
 timeNow = time.time()
 fileDate = datetime.datetime.fromtimestamp(timeNow).strftime('%m-%d--%H-%M--')
-idPath = 'C:/Users/jeffb/Documents/Python/webPrograms/webScraping/youtube/IDs/'
-outputPath = 'C:/Users/jeffb/Documents/Python/webPrograms/webScraping/youtube/output/'
+idPath = 'C:/Users/jeffb/Documents/Python/webPrograms/webScraping/yt-stats/IDs/'
+outputPath = 'C:/Users/jeffb/Documents/Python/webPrograms/webScraping/yt-stats/output/'
 
 def allStatGet (channel):
     videos = []
