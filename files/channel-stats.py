@@ -60,10 +60,9 @@ def allStatGet (channel):
                     print (x['id'] + ': key error')
                     writer.writerow(["'" + x['id'],
                                 x['snippet']['publishedAt'],
-                                ' ',
-                                ' ',
-                                x['contentDetails']['duration'],
-                                x['statistics']['viewCount']])
+                                x['snippet']['channelTitle'],
+                                x['snippet']['title'],
+                                x['contentDetails']['duration']])
                     pass
 
             id_counter = (id_counter + results)
@@ -72,17 +71,16 @@ def allStatGet (channel):
 
 def newStatGet (channel):
     videos = []
-
+    x = 0
     with open(idPath+channel+'-videoIDs.csv', newline='') as r:
         file = csv.reader(r, delimiter =',')
         for row in file:
             for i in row:
-                while len(videos) < 25:
-                    videos.append(i)
+                videos.append(i)
 
     id_counter = -1 
     results = 25
-    video_ids = '%2C+'.join(videos)
+    video_ids = '%2C+'.join(videos[0:25])
     
     with open(outputPath+fileDate+channel+'-newstats.csv', 'w', encoding ='utf8', newline='') as f:
         writer = csv.writer(f)
@@ -111,26 +109,25 @@ def newStatGet (channel):
             except KeyError:
                 print (x['id'] + ': key error')
                 writer.writerow(["'" + x['id'],
-                            x['snippet']['publishedAt'],
-                            ' ',
-                            ' ',
-                            x['contentDetails']['duration'],
-                            x['statistics']['viewCount']])
+                                x['snippet']['publishedAt'],
+                                x['snippet']['channelTitle'],
+                                x['snippet']['title'],
+                                x['contentDetails']['duration']])
                 pass
 
             id_counter = (id_counter + results)
     
 def regularGet():
-    channels = ['Lyrical-Lemonade', 'Lonewolf', 'WSHH']
-
+    #channels = ['Lyrical-Lemonade', 'Lonewolf', 'WSHH']
+    channels = ['Lonewolf']
     for i in channels:
         print ('Grabbing video stats from ' + i)
         newStatGet(i)
 def completeGet():
-    newChannels = ['Lyrical-Lemonade', 'Lonewolf', 'WSHH']  
+    newChannels = ['Jeffree-Star']  
     
     for i in newChannels:
             allStatGet(i)
 
 regularGet()
-# completeGet()
+#completeGet()

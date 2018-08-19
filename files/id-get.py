@@ -7,8 +7,9 @@ keyGet = open('Key.txt', 'r')
 API_KEY = keyGet.read()
 idPath = 'C:/Users/jeffb/Documents/Python/webPrograms/webScraping/yt-stats/IDs/'
 
-channel_dict = {'WSHH':'UU-yXuc1__OzjwpsJPlxYUCQ', 'Lyrical-Lemonade':'UUtylTUUVIGY_i5afsQYeBZA', 'Lonewolf':'UUtLgQnGkWe74dukALaUNt1Q'}
-channel = 'Lonewolf'
+channel_dict = {'WSHH':'UU-yXuc1__OzjwpsJPlxYUCQ', 'Lyrical-Lemonade':'UUtylTUUVIGY_i5afsQYeBZA', 'Lonewolf':'UUtLgQnGkWe74dukALaUNt1Q', \
+                'TeamSESH': 'UUmOVEae8Tl7XmdjdxLbJHkw', 'H3H3': 'UULtREJY21xRfCuEKvdki1Kw', 'No-Jumper': 'UUNNTZgxNQuBrhbO0VrG8woA', 'Jeffree-Star': 'UUkvK_5omS-42Ovgah8KRKtg'}
+channel = 'Jeffree-Star'
 channelUploads = channel_dict[channel]
 
 nextPage = ''
@@ -41,7 +42,7 @@ for _ in range(pageTotal):
             
         nextPage = (data['nextPageToken'])
         pageCount +=1
-        print('ID_Get Page ('+str(pageCount)+'/'+str(pageTotal)+')')   
+        print('Grabbing Video IDs from ' + channel + '(' +str(pageCount)+'/'+str(pageTotal)+')')   
 
     except HTTPError as e:
         print('The server couldn\'t fulfill the request.')
@@ -51,8 +52,7 @@ for _ in range(pageTotal):
         print('Reason: ', e.reason)
     except KeyError as e:
         pageCount +=1
-        print('ID_Get Page ('+str(pageCount)+'/'+str(pageTotal)+')')
-        print('Reached end of list')
+        print('Grabbing Video IDs from ' + channel + '(' +str(pageCount)+'/'+str(pageTotal)+')')   
 
 
 with open(idPath+channel+'-videoIDs.csv', 'w', newline='') as f:
