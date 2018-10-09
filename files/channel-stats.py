@@ -124,10 +124,10 @@ def regularGet():
         print ('Grabbing video stats from ' + i)
         newStatGet(i)
 def completeGet():
-    newChannels = ['Jeffree-Star']  
+    newChannels = ['JRE']  
     
     for i in newChannels:
             allStatGet(i)
 
-regularGet()
-#completeGet()
+# regularGet()
+completeGet()
