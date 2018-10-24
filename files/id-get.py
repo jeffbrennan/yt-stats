@@ -1,4 +1,9 @@
-import requests, json, csv, time, datetime,timing
+import requests
+import json
+import csv
+import time
+import datetime
+import timing
 from urllib.error import HTTPError, URLError
 from bs4 import BeautifulSoup
 from urllib import request
@@ -13,12 +18,12 @@ idPath = 'C:/Users/jeffb/Documents/Python/webPrograms/webScraping/yt-stats/IDs/'
 timeNow = time.time()
 fileName = datetime.datetime.fromtimestamp(timeNow).strftime('%m_%d_%H_%M_')
 
-# channel_dict = {'WSHH':'UU-yXuc1__OzjwpsJPlxYUCQ', 'Lyrical-Lemonade':'UUtylTUUVIGY_i5afsQYeBZA', 'Lonewolf':'UUtLgQnGkWe74dukALaUNt1Q',
-#                 'TeamSESH': 'UUmOVEae8Tl7XmdjdxLbJHkw', 'H3H3': 'UULtREJY21xRfCuEKvdki1Kw',
-#                  'No-Jumper': 'UUNNTZgxNQuBrhbO0VrG8woA', 'Jeffree-Star': 'UUkvK_5omS-42Ovgah8KRKtg',
-#                  'JRE' : 'UUzQUP1qoWDoEbmsQxvdjxgQ'}
+# channel_dict = {'WSHH':'UU-yXuc1__OzjwpsJPlxYUCQ', 'Lyrical-Lemonade':'UUtylTUUVIGY_i5afsQYeBZA',
+#                 'Lonewolf':'UUtLgQnGkWe74dukALaUNt1Q', 'TeamSESH': 'UUmOVEae8Tl7XmdjdxLbJHkw',
+#                 'H3H3': 'UULtREJY21xRfCuEKvdki1Kw', 'No-Jumper': 'UUNNTZgxNQuBrhbO0VrG8woA',
+#                 'Jeffree-Star': 'UUkvK_5omS-42Ovgah8KRKtg', 'JRE' : 'UUzQUP1qoWDoEbmsQxvdjxgQ'}
 
-def channelUploadsGet (query): ## needs bug fixing / testing
+def channelUploadsGet(query):  # needs bug fixing / testing
     chrome_path = r"C:\Users\jeffb\Anaconda3\Scripts\chromedriver.exe"
     options = Options()
     options.add_argument('--headless')
@@ -26,9 +31,9 @@ def channelUploadsGet (query): ## needs bug fixing / testing
     options.add_argument("--log-level=3")
     driver = webdriver.Chrome(chrome_path, chrome_options=options)
 
-    print ('Getting channel ID...')
+    print('Getting channel ID...')
 
-    driver.get('https://www.youtube.com/results?search_query='+query)
+    driver.get('https://www.youtube.com/results?search_query=' + query)
     videoUrl = driver.find_element_by_xpath('//*[@id="video-title"]').get_attribute('href')
     driver.quit
 
@@ -40,54 +45,55 @@ def channelUploadsGet (query): ## needs bug fixing / testing
         if link.has_attr('href') and len(link['href']) == 33:
             channelID = link['href']
 
-    channelID = channelID.replace('/channel/UC','UU')
+    channelID = channelID.replace('/channel/UC', 'UU')
 
-    print ('Channel Upload ID found: ' + channelID) 
+    print('Channel Upload ID found: ' + channelID)
     return(channelID)
 
-## Get number of results
-def videoNumGet (channelUploads, API_KEY):
-    inp = requests.get('https://www.googleapis.com/youtube/v3/playlistItems?part=contentDetails&maxResults=2'+
-                                '&playlistId='+channelUploads+'&fields=pageInfo%2FtotalResults&key='+API_KEY)
-                        
+# Get number of results
+def videoNumGet(channelUploads, API_KEY):
+    inp = requests.get('https://www.googleapis.com/youtube/v3/playlistItems?part=contentDetails&maxResults=2' +
+                       '&playlistId=' + channelUploads + '&fields=pageInfo%2FtotalResults&key=' + API_KEY)
+
     resultData = json.loads(inp.content)
     inp.close()
     video_count = resultData['pageInfo']
     vidnum = video_count['totalResults']
 
-    pageTotal = (vidnum//50)+1
+    pageTotal = (vidnum // 50) + 1
     return pageTotal
 
-## Get IDs
-def videoIDGet (channelUploads, API_KEY, pageTotal):
+# Get IDs
+def videoIDGet(channelUploads, API_KEY, pageTotal):
     nextPage = ''
     pageCount = 0
     videos = []
     for _ in range(pageTotal):
-        r = requests.get('https://www.googleapis.com/youtube/v3/playlistItems?part=contentDetails&maxResults=50&pageToken='+nextPage+
-                            '&playlistId='+channelUploads+'&fields=items%2FcontentDetails%2FvideoId%2CnextPageToken&key='+API_KEY)
+        r = requests.get('https://www.googleapis.com/youtube/v3/playlistItems?part=contentDetails&' +
+                         'maxResults=50&pageToken=' + nextPage + '&playlistId=' + channelUploads +
+                         '&fields=items%2FcontentDetails%2FvideoId%2CnextPageToken&key=' + API_KEY)
         try:
             data = json.loads(r.content)
             r.close()
             returnedVideos = data['items']
-            
+
             for video in returnedVideos:
                 videos.append(video['contentDetails']['videoId'])
-                
+
             nextPage = (data['nextPageToken'])
-            pageCount +=1
-            print('Grabbing Video IDs from ' + channel + ' (' +str(pageCount)+'/'+str(pageTotal)+')')   
+            pageCount += 1
+            print('Grabbing Video IDs from ' + channel + ' (' + str(pageCount) + '/' + str(pageTotal) + ')')
 
         except HTTPError as e:
             print('The server couldn\'t fulfill the request.')
-            print('Error code: ', e.code)        
+            print('Error code: ', e.code)
         except URLError as e:
             print('We failed to reach a server.')
             print('Reason: ', e.reason)
         except KeyError as e:
-            pageCount +=1
-            print('Grabbing Video IDs from ' + channel + ' (' +str(pageCount)+'/'+str(pageTotal)+')')   
-    
+            pageCount += 1
+            print('Grabbing Video IDs from ' + channel + ' (' + str(pageCount) + '/' + str(pageTotal) + ')')
+
     return videos
 
 channel = 'H3H3 Productions'
@@ -103,7 +109,7 @@ videos = videoIDGet(channelUploads, API_KEY, pageTotal)
 #         writer.writerow([i])
 
 
-print (videos)
+print(videos)
 
 # df = pd.DataFrame()
 # df['Video IDs'] = pd.Series(videos)
