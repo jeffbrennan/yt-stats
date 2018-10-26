@@ -1,6 +1,5 @@
 import requests
 import json
-import csv
 import time
 import datetime
 import timing
@@ -15,8 +14,7 @@ keyGet = open('Key.txt', 'r')
 API_KEY = keyGet.read()
 
 idPath = 'C:/Users/jeffb/Documents/Python/webPrograms/webScraping/yt-stats/IDs/'
-timeNow = time.time()
-fileName = datetime.datetime.fromtimestamp(timeNow).strftime('%m_%d_%H_%M_')
+fileName = datetime.datetime.fromtimestamp(time.time()).strftime('%m_%d_%H_%M_')
 
 # channel_dict = {'WSHH':'UU-yXuc1__OzjwpsJPlxYUCQ', 'Lyrical-Lemonade':'UUtylTUUVIGY_i5afsQYeBZA',
 #                 'Lonewolf':'UUtLgQnGkWe74dukALaUNt1Q', 'TeamSESH': 'UUmOVEae8Tl7XmdjdxLbJHkw',
@@ -98,20 +96,10 @@ def videoIDGet(channelUploads, API_KEY, pageTotal):
 
 channel = 'H3H3 Productions'
 channelUploads = channelUploadsGet(channel)
-
+# channelUploads = 'UULtREJY21xRfCuEKvdki1Kw'
 pageTotal = videoNumGet(channelUploads, API_KEY)
 
 videos = videoIDGet(channelUploads, API_KEY, pageTotal)
+video_list = pd.Series(videos)
 
-# with open(idPath+channel+'-videoIDs.csv', 'w', newline='') as f:
-#     writer = csv.writer(f)
-#     for i in videos:
-#         writer.writerow([i])
-
-
-print(videos)
-
-# df = pd.DataFrame()
-# df['Video IDs'] = pd.Series(videos)
-
-# df.to_csv(idPath+channel+'-videoIDs.csv', encoding='utf-8', index=False)
+video_list.to_csv(idPath + channel + '-videoIDs.csv', encoding='utf-8', index=False)
