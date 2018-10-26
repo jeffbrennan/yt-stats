@@ -21,7 +21,7 @@ fileName = datetime.datetime.fromtimestamp(time.time()).strftime('%m_%d_%H_%M_')
 #                 'H3H3': 'UULtREJY21xRfCuEKvdki1Kw', 'No-Jumper': 'UUNNTZgxNQuBrhbO0VrG8woA',
 #                 'Jeffree-Star': 'UUkvK_5omS-42Ovgah8KRKtg', 'JRE' : 'UUzQUP1qoWDoEbmsQxvdjxgQ'}
 
-def channelUploadsGet(query):  # needs bug fixing / testing
+def channelUploadsGet(query):
     chrome_path = r"C:\Users\jeffb\Anaconda3\Scripts\chromedriver.exe"
     options = Options()
     options.add_argument('--headless')
@@ -32,21 +32,23 @@ def channelUploadsGet(query):  # needs bug fixing / testing
     print('Getting channel ID...')
 
     driver.get('https://www.youtube.com/results?search_query=' + query)
-    videoUrl = driver.find_element_by_xpath('//*[@id="video-title"]').get_attribute('href')
-    driver.quit
+    username = driver.find_element_by_xpath('//*[@id="byline"]/a').get_attribute('href')
+    driver.quit()
 
-    r = requests.get(videoUrl)
-    soup = BeautifulSoup(r.text, 'html.parser')
-    results = soup.findAll('a')
+    username = username[29:]
 
-    for link in results:
-        if link.has_attr('href') and len(link['href']) == 33:
-            channelID = link['href']
+    id_fetch = requests.get('https://www.googleapis.com/youtube/v3/channels?part='
+                            'id&forUsername=' + username + '&key=' + API_KEY)
 
+    id_response = json.loads(id_fetch.content)
+    id_fetch.close
+
+    channelID = id_response['items'][0]['id']
     channelID = channelID.replace('/channel/UC', 'UU')
 
     print('Channel Upload ID found: ' + channelID)
     return(channelID)
+
 
 # Get number of results
 def videoNumGet(channelUploads, API_KEY):
@@ -94,9 +96,9 @@ def videoIDGet(channelUploads, API_KEY, pageTotal):
 
     return videos
 
-channel = 'H3H3 Productions'
+channel = 'H3H3Productions'
+
 channelUploads = channelUploadsGet(channel)
-# channelUploads = 'UULtREJY21xRfCuEKvdki1Kw'
 pageTotal = videoNumGet(channelUploads, API_KEY)
 
 videos = videoIDGet(channelUploads, API_KEY, pageTotal)
