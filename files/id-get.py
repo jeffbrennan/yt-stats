@@ -16,11 +16,6 @@ API_KEY = keyGet.read()
 idPath = 'C:/Users/jeffb/Documents/Python/webPrograms/webScraping/yt-stats/IDs/'
 fileName = datetime.datetime.fromtimestamp(time.time()).strftime('%m_%d_%H_%M_')
 
-# channel_dict = {'WSHH':'UU-yXuc1__OzjwpsJPlxYUCQ', 'Lyrical-Lemonade':'UUtylTUUVIGY_i5afsQYeBZA',
-#                 'Lonewolf':'UUtLgQnGkWe74dukALaUNt1Q', 'TeamSESH': 'UUmOVEae8Tl7XmdjdxLbJHkw',
-#                 'H3H3': 'UULtREJY21xRfCuEKvdki1Kw', 'No-Jumper': 'UUNNTZgxNQuBrhbO0VrG8woA',
-#                 'Jeffree-Star': 'UUkvK_5omS-42Ovgah8KRKtg', 'JRE' : 'UUzQUP1qoWDoEbmsQxvdjxgQ'}
-
 def channelUploadsGet(query):
     chrome_path = r"C:\Users\jeffb\Anaconda3\Scripts\chromedriver.exe"
     options = Options()
@@ -48,7 +43,6 @@ def channelUploadsGet(query):
 
     print('Channel Upload ID found: ' + channelID)
     return(channelID)
-
 
 # Get number of results
 def videoNumGet(channelUploads, API_KEY):
