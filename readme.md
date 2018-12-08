@@ -1,5 +1,8 @@
-# YT STATS RETRIEVER
-This grabs all videos from a particular channel (or channels) and gets the following information 
+# YouTube Channel Scraper
+This grabs all videos from a particular channel (or channels) and their information
+
+----
+#### Data Retrieved 
 - Title
 - Video ID
 - Published Date
@@ -11,4 +14,7 @@ This grabs all videos from a particular channel (or channels) and gets the follo
 - Number of dislikes
 - Number of comments 
 
-Can be used to identify when a particular channel gained popularity or to find a channel's most controversial videos
+----
+#### Use Cases
+- Identify when a particular channel gained popularity
+- Find a channel's most controversial/liked videos
