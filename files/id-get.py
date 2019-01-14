@@ -1,101 +1,102 @@
 import requests
 import json
-import time
-import datetime
 import timing
-from urllib.error import HTTPError, URLError
-from bs4 import BeautifulSoup
-from urllib import request
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import pandas as pd
 
-keyGet = open('Key.txt', 'r')
-API_KEY = keyGet.read()
-
-idPath = 'C:/Users/jeffb/Documents/Python/webPrograms/webScraping/yt-stats/IDs/'
-fileName = datetime.datetime.fromtimestamp(time.time()).strftime('%m_%d_%H_%M_')
-
-def channelUploadsGet(query):
+# Creates the selenium driver used to query youtube
+def selenium_gen():
     chrome_path = r"C:\Users\jeffb\Anaconda3\Scripts\chromedriver.exe"
     options = Options()
-    options.add_argument('--headless')
+    options.add_argument('--headless')  # suppresses the browser from opening
     options.add_argument('--disable-gpu')
-    options.add_argument("--log-level=3")
+    options.add_argument("--log-level=3")  # supresses console errors
     driver = webdriver.Chrome(chrome_path, chrome_options=options)
 
+    return driver
+
+def uploads_get(query, API_KEY):
     print('Getting channel ID...')
 
+    driver = selenium_gen()
     driver.get('https://www.youtube.com/results?search_query=' + query)
+
     username = driver.find_element_by_xpath('//*[@id="byline"]/a').get_attribute('href')
+    username = username.split('/')[4]
     driver.quit()
 
-    username = username[29:]
+    # When first result link contains the channel ID
+    if username[0:2] == 'UC' and len(username) == 24:
+        upload_ID = username.replace('UC', 'UU')
 
-    id_fetch = requests.get('https://www.googleapis.com/youtube/v3/channels?part='
-                            'id&forUsername=' + username + '&key=' + API_KEY)
+    # when the first result link contains the plain username
+    else:
+        id_fetch = requests.get('https://www.googleapis.com/youtube/v3/channels?part='
+                                'id&forUsername=' + username + '&key=' + API_KEY)
 
-    id_response = json.loads(id_fetch.content)
-    id_fetch.close
+        id_response = json.loads(id_fetch.content)
+        id_fetch.close
 
-    channelID = id_response['items'][0]['id']
-    channelID = channelID.replace('/channel/UC', 'UU')
+        channelID = id_response['items'][0]['id']
+        upload_ID = channelID.replace('UC', 'UU')
 
-    print('Channel Upload ID found: ' + channelID)
-    return(channelID)
+    print('Channel Upload ID found: ' + upload_ID)
+    return(upload_ID)
 
-# Get number of results
-def videoNumGet(channelUploads, API_KEY):
-    inp = requests.get('https://www.googleapis.com/youtube/v3/playlistItems?part=contentDetails&maxResults=2' +
-                       '&playlistId=' + channelUploads + '&fields=pageInfo%2FtotalResults&key=' + API_KEY)
+# Get number total number of video results for page counting
+def vid_num_get(channelUploads, API_KEY):
+    response = requests.get('https://www.googleapis.com/youtube/v3/playlistItems?part=contentDetails&maxResults=2' +
+                            '&playlistId=' + channelUploads + '&fields=pageInfo%2FtotalResults&key=' + API_KEY)
 
-    resultData = json.loads(inp.content)
-    inp.close()
-    video_count = resultData['pageInfo']
-    vidnum = video_count['totalResults']
+    result = json.loads(response.content)
+    response.close()
+    video_count = result['pageInfo']
+    vid_num = video_count['totalResults']
 
-    pageTotal = (vidnum // 50) + 1
-    return pageTotal
+    page_total = (vid_num // 50) + 1
+    return page_total
 
-# Get IDs
-def videoIDGet(channelUploads, API_KEY, pageTotal):
+# Get all video IDs from the selected channel
+def vid_ID_get(uploads, pages, channel, API_KEY):
     nextPage = ''
     pageCount = 0
     videos = []
-    for _ in range(pageTotal):
-        r = requests.get('https://www.googleapis.com/youtube/v3/playlistItems?part=contentDetails&' +
-                         'maxResults=50&pageToken=' + nextPage + '&playlistId=' + channelUploads +
-                         '&fields=items%2FcontentDetails%2FvideoId%2CnextPageToken&key=' + API_KEY)
+    for _ in range(pages):
+        response = requests.get('https://www.googleapis.com/youtube/v3/playlistItems?part=contentDetails&' +
+                                'maxResults=50&pageToken=' + nextPage + '&playlistId=' + uploads +
+                                '&fields=items%2FcontentDetails%2FvideoId%2CnextPageToken&key=' + API_KEY)
         try:
-            data = json.loads(r.content)
-            r.close()
-            returnedVideos = data['items']
+            result = json.loads(response.content)
+            response.close()
+            returnedVideos = result['items']
 
             for video in returnedVideos:
                 videos.append(video['contentDetails']['videoId'])
 
-            nextPage = (data['nextPageToken'])
+            nextPage = result['nextPageToken']
             pageCount += 1
-            print('Grabbing Video IDs from ' + channel + ' (' + str(pageCount) + '/' + str(pageTotal) + ')')
+            print('Grabbing Video IDs from ' + channel + ' (' + str(pageCount) + '/' + str(pages) + ')')
 
-        except HTTPError as e:
-            print('The server couldn\'t fulfill the request.')
-            print('Error code: ', e.code)
-        except URLError as e:
-            print('We failed to reach a server.')
-            print('Reason: ', e.reason)
-        except KeyError as e:
+        # triggers when loop reaches last valid video id [partial pages]
+        except KeyError:
             pageCount += 1
-            print('Grabbing Video IDs from ' + channel + ' (' + str(pageCount) + '/' + str(pageTotal) + ')')
+            print('Grabbing Video IDs from ' + channel + ' (' + str(pageCount) + '/' + str(pages) + ')')
 
-    return videos
+    video_list = pd.Series(videos)
+    return video_list
 
-channel = 'H3H3Productions'
+def main():
+    key = open('Key.txt', 'r')
+    API_KEY = key.read()
 
-channelUploads = channelUploadsGet(channel)
-pageTotal = videoNumGet(channelUploads, API_KEY)
+    channel = input('Enter name of channel: ')
 
-videos = videoIDGet(channelUploads, API_KEY, pageTotal)
-video_list = pd.Series(videos)
+    uploads = uploads_get(channel, API_KEY)
+    pages = vid_num_get(uploads, API_KEY)
+    video_list = vid_ID_get(uploads, pages, channel, API_KEY)
 
-video_list.to_csv(idPath + channel + '-videoIDs.csv', encoding='utf-8', index=False)
+    video_list.to_csv('vid_id/' + channel + '-videoIDs-test.csv', encoding='utf-8', index=False)
+
+if __name__ == '__main__':
+    main()
