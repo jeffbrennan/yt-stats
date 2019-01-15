@@ -5,6 +5,11 @@ import datetime
 import timing
 import pandas as pd
 
+def pad(seq, target_len, padding=None):
+    seq_len = len(seq)
+    seq.extend([padding] * (target_len - seq_len))
+    return seq
+
 def json_parse(x):
     try:
         video_result = [x['id'], x['snippet']['publishedAt'],
@@ -21,6 +26,8 @@ def json_parse(x):
                         x['snippet']['channelTitle'],
                         x['snippet']['title'],
                         x['contentDetails']['duration']]
+
+        video_result = pad(video_result, 9)
     return video_result
 
 def api_call(vid_query, results, API_KEY):
@@ -50,7 +57,7 @@ def stat_get(channel, request_type):
     row_counter = 0
 
     video_ids = pd.read_csv('vid_id/' + channel + '-videoIDs.csv', squeeze=True).tolist()
-    vid_df = pd.DataFrame(columns=['ID', 'Published', 'Channel', 'Video', 'Duration',
+    vid_df = pd.DataFrame(columns=['Vid_ID', 'Published', 'Channel', 'Video', 'Duration',
                                    'Views', 'Likes', 'Dislikes', 'Comments'])
 
     if request_type == '2':
@@ -81,7 +88,7 @@ def stat_get(channel, request_type):
     out_df.to_csv('output/' + timestamp + channel + '-stats.csv', encoding='utf8', index=False)
 
 def stat_request():
-    channels = ['h3 podcast']
+    channels = []
     request = str(input('1 - All statistics | 2 - Recent statistics: '))
     [stat_get(i, request) for i in channels]  # gets stats for every channel listed in 'channels'
 
